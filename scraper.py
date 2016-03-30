@@ -23,7 +23,7 @@ def get_review(data):
 
     # Find the name of the strain
     h1_iter = [h for h in soup.find_all("h1")]
-    strain_name = h1_iter[0].text.strip()
+    strain_name = h1_iter[0].text.strip().replace(" Reviews", "")
 
     # Find the user names
     href_iter = (
