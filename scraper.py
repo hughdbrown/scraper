@@ -7,13 +7,7 @@ from time import sleep
 from bs4 import BeautifulSoup
 import requests
 
-from local import ROOT
-
-PREFIXES = (
-    "/Sativa",
-    "/Indica",
-    "/Hybrid",
-)
+from local import ROOT, PREFIXES
 
 
 def get_strains():
