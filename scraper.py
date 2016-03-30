@@ -83,11 +83,13 @@ def main():
     # pages = get_strains()
     # save_pages(pages)
     pages = read_pages()
-    for page in pages:
+    for i, page in enumerate(pages):
+        print("{0}: {1} of {2}".format(page, i, len(pages)), file=stderr)
         results = get_pages(page)
         name, reviews = results["name"], results["reviews"]
         for user, rating in reviews:
             print('"{0}","{1}",{2}'.format(name, user, rating))
+        print("-" * 30, file=stderr)
 
 
 if __name__ == '__main__':
