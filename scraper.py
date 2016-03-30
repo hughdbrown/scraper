@@ -11,7 +11,7 @@ from local import ROOT, PREFIXES
 
 
 def get_strains():
-    with open("strains.txt") as f:
+    with open("strains.html") as f:
         soup = BeautifulSoup(f.read(), "lxml")
         href_iter = (a["href"] for a in soup.find_all("a", href=True))
         return [h for h in href_iter if h.startswith(PREFIXES)]
@@ -68,8 +68,21 @@ def get_pages(root):
     return page
 
 
+def save_pages(pages):
+    print("Number of strains: {0}".format(len(pages)), file=stderr)
+    with open("strains.txt", "w") as f:
+        f.write("\n".join(pages) + "\n")
+
+
+def read_pages():
+    with open("strains.txt") as f:
+        return [page.strip() for page in f]
+
+
 def main():
-    pages = get_strains()
+    # pages = get_strains()
+    # save_pages(pages)
+    pages = read_pages()
     for page in pages:
         results = get_pages(page)
         name, reviews = results["name"], results["reviews"]
