@@ -26,17 +26,11 @@ def get_review(data):
     strain_name = h1_iter[0].text.strip().replace(" Reviews", "")
 
     # Find the user names
-    href_iter = (
-        a["href"]
-        for h3 in soup.find_all("h3", {"class": "copy--xl padding-rowItem no-margin"})
-        for a in h3.find_all("a", href=True)
-    )
-    users = [href.replace("/profile/", "") for href in href_iter if href.startswith("/profile")]
+    users = [a["href"].split('/')[2] for a in soup.select('.no-color')]
 
     # Find the rating
-    span_iter = (s for s in soup.find_all("span", {"class" : "squeeze"}))
-    rating_iter = (s["star-rating"] for s in span_iter)
-    ratings = [float(rating) for rating in rating_iter]
+    ratings = [float(s["star-rating"]) for s in soup.select('.squeeze')]
+
     print("Read {0} users and {1} ratings".format(len(users), len(ratings)), file=stderr)
     return strain_name, list(zip(users, ratings))
 
