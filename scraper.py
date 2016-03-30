@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 from __future__ import print_function
 
-from sys import stderr
+from sys import stderr, stdout
 from time import sleep
+from datetime import datetime
 
 from bs4 import BeautifulSoup
 import requests
@@ -18,7 +19,6 @@ def get_strains():
 
 
 def get_review(data):
-    sleep(1.5)
     soup = BeautifulSoup(data.encode('utf-8'), "lxml")
 
     # Find the name of the strain
@@ -46,19 +46,22 @@ def get_pages(root):
         "reviews": reviews,
     }
     for i in range(1, 1000):
-        url = "{0}?page={1}".format(review_page, i)
-        print(url, file=stderr)
-        r = requests.get(url)
-        if not r.ok:
-            print("Bad request for {0}".format(url), file=stderr)
-            break
-        _, reviews = get_review(r.text)
-        if reviews:
-            page["reviews"] += reviews
-            print(reviews, file=stderr)
-        else:
+        if not reviews or len(reviews) < 8:
             print("{0} reviews for {1}".format(len(page["reviews"]), root), file=stderr)
             break
+        else:
+            sleep(1.5)
+            url = "{0}?page={1}".format(review_page, i)
+            print(url, file=stderr)
+            r = requests.get(url)
+            if not r.ok:
+                print("Bad request for {0}".format(url), file=stderr)
+                break
+            _, reviews = get_review(r.text)
+            if reviews:
+                page["reviews"] += reviews
+                print(reviews, file=stderr)
+
     return page
 
 
@@ -77,14 +80,27 @@ def main():
     # pages = get_strains()
     # save_pages(pages)
     pages = read_pages()
+    redo = []
     for i, page in enumerate(pages):
         print("{0}: {1} of {2}".format(page, i, len(pages)), file=stderr)
+        s = datetime.now()
         results = get_pages(page)
+        e = datetime.now()
         name, reviews = results["name"], results["reviews"]
-        for user, rating in reviews:
-            print('"{0}","{1}",{2}'.format(name, user, rating))
+        try:
+            for user, rating in reviews:
+                print('"{0}","{1}",{2}'.format(name, user, rating))
+            stdout.flush()
+        except Exception as exc:
+            print("*** Exception on {0}: {1}".format(page, exc), file=stderr)
+            redo.append(page)
+        print("Elapsed time: {0}".format(e - s), file=stderr)
         print("-" * 30, file=stderr)
 
+    if redo:
+        print("Rerun these pages:", file=stderr)
+        for page in redo:
+            print(redo, file=stderr)
 
 if __name__ == '__main__':
     main()
