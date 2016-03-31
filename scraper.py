@@ -83,27 +83,35 @@ def main():
     # pages = get_strains()
     # save_pages(pages)
     pages = read_pages()
-    redo = []
+    empty, redo = [], []
     for i, page in enumerate(pages):
         print("{0}: {1} of {2}".format(page, i, len(pages)), file=stderr)
         s = datetime.now()
         results = get_pages(page)
         e = datetime.now()
         name, reviews = results["name"], results["reviews"]
-        try:
-            for user, rating in reviews:
-                print('"{0}","{1}",{2}'.format(name, user, rating))
-            stdout.flush()
-        except Exception as exc:
-            print("*** Exception on {0}: {1}".format(page, exc), file=stderr)
-            redo.append(page)
+        if reviews:
+            try:
+                for user, rating in reviews:
+                    print('"{0}","{1}",{2}'.format(name, user, rating))
+                stdout.flush()
+            except Exception as exc:
+                print("*** Exception on {0}: {1}".format(page, exc), file=stderr)
+                redo.append(page)
+        else:
+            empty.append(page)
         print("Elapsed time: {0}".format(e - s), file=stderr)
         print("-" * 30, file=stderr)
 
     if redo:
         print("Rerun these pages:", file=stderr)
-        for page in redo:
-            print(redo, file=stderr)
+        for page in sorted(redo):
+            print(page, file=stderr)
+
+    if empty:
+        print("Empty pages:", file=stderr)
+        for page in sorted(empty):
+            print(page, file=stderr)
 
 if __name__ == '__main__':
     main()
