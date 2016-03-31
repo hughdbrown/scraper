@@ -4,12 +4,15 @@ from __future__ import print_function
 from sys import stderr, stdout
 from time import sleep
 from datetime import datetime
+import re
 
 from bs4 import BeautifulSoup
 import requests
 
 from local import ROOT, PREFIXES
 
+
+USER_REGEX = re.compile(r'.*profile/(.*)$')
 
 def get_strains():
     with open("strains.html") as f:
@@ -26,7 +29,7 @@ def get_review(data):
     strain_name = h1_iter[0].text.strip().replace(" Reviews", "")
 
     # Find the user names
-    users = [a["href"].split('/')[2] for a in soup.select('.no-color')]
+    users = [USER_REGEX.match(a["href"]).group(1) for a in soup.select('a.no-color')]
 
     # Find the rating
     ratings = [float(s["star-rating"]) for s in soup.select('.squeeze')]
